@@ -20,6 +20,7 @@ option(FIND_SIMD         "Set to ON to find SIMD extensions"         ON)
 option(FIND_THREADS      "Set to ON to find threading library"       ON)
 option(FIND_FFTW         "Set to ON to find FFTW library"            ON)
 option(BUILD_SANDBOX     "Set to ON to build sandbox programs"       OFF)
+option(BUILD_QAM_BER      "Set to ON to build QAM BER modem test"     OFF)
 option(BUILD_DOC         "Set to ON to build documentation"          OFF)
 option(COVERAGE          "Set to ON to build with code coverage"     OFF)
 #option(PROFILE           "Set to ON to build with profiling"         OFF)
@@ -582,6 +583,11 @@ endif(BUILD_EXAMPLES)
 if(BUILD_SANDBOX)
     add_subdirectory(sandbox)
 endif(BUILD_SANDBOX)
+
+# QAM BER modem test
+if(BUILD_QAM_BER)
+    add_subdirectory(sandbox/qam_ber)
+endif(BUILD_QAM_BER)
 
 # ---------------------------------------- autotest ----------------------------------------
 
