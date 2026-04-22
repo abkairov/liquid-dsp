@@ -16,7 +16,7 @@ typedef struct {
 } channel_sim_t;
 
 int  channel_sim_create(channel_sim_t *ch, float sym_rate, unsigned int k,
-                        float bw_cutoff);
+                        float bw_cutoff, unsigned int num_echoes);
 void channel_sim_destroy(channel_sim_t *ch);
 void channel_sim_reset(channel_sim_t *ch);
 

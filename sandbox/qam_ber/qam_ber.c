@@ -52,9 +52,12 @@ int main(int argc, char *argv[])
     float        SNRdB_max   = 28.75f;
     float        SNRdB_step  = 0.25f;
     const char  *mod_str     = "qam256";
+    unsigned int num_echoes  = 0;
+    int          has_seed    = 0;
+    unsigned int seed_val    = 0;
 
     int dopt;
-    while ((dopt = getopt(argc, argv, "hm:n:s:x:d:c:t:")) != EOF) {
+    while ((dopt = getopt(argc, argv, "hm:n:s:x:d:c:t:e:R:")) != EOF) {
         switch (dopt) {
         case 'h':
             printf("qam_ber - BER with BW-limited + multipath channel\n");
@@ -63,6 +66,8 @@ int main(int argc, char *argv[])
             printf("  -t <num>    training symbols [8000]\n");
             printf("  -s/-x/-d    SNR min/max/step dB [28.75/28.75/0.25]\n");
             printf("  -c <Hz>     channel BW cutoff [1900]\n");
+            printf("  -e <num>    multipath echoes [4]\n");
+            printf("  -R <seed>   RNG seed for TX data\n");
             return 0;
         case 'm': mod_str     = optarg; break;
         case 'n': num_symbols = atoi(optarg); break;
@@ -71,6 +76,8 @@ int main(int argc, char *argv[])
         case 'x': SNRdB_max   = atof(optarg); break;
         case 'd': SNRdB_step  = atof(optarg); break;
         case 'c': bw_cutoff   = atof(optarg); break;
+        case 'e': num_echoes  = atoi(optarg); break;
+        case 'R': has_seed = 1; seed_val = strtoul(optarg, NULL, 0); break;
         default:  return 1;
         }
     }
@@ -85,7 +92,7 @@ int main(int argc, char *argv[])
     modem_pipeline_create(&mp, ms, k, m, beta);
 
     channel_sim_t ch;
-    channel_sim_create(&ch, sym_rate, k, bw_cutoff);
+    channel_sim_create(&ch, sym_rate, k, bw_cutoff, num_echoes);
 
     unsigned int total_delay = modem_pipeline_delay(&mp) + channel_sim_delay(&ch);
 
@@ -107,6 +114,7 @@ int main(int argc, char *argv[])
     for (float SNRdB = SNRdB_min; SNRdB <= SNRdB_max + 0.001f; SNRdB += SNRdB_step) {
         run_training(&mp, &ch, N_train, SNRdB);
 
+        if (has_seed) srand(seed_val);
         unsigned int M_full = 1u << mp.dbps;
         for (unsigned int i = 0; i < num_symbols; i++)
             tx_data[i] = rand() % M_full;

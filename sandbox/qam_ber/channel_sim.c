@@ -5,7 +5,7 @@
 #include "channel_sim.h"
 
 int channel_sim_create(channel_sim_t *ch, float sym_rate, unsigned int k,
-                       float bw_cutoff)
+                       float bw_cutoff, unsigned int num_echoes)
 {
     memset(ch, 0, sizeof(*ch));
     ch->k = k;
@@ -21,14 +21,16 @@ int channel_sim_create(channel_sim_t *ch, float sym_rate, unsigned int k,
     ch->bw_filt = firfilt_crcf_create(h, ch->bw_filt_len);
     free(h);
 
-    /* Symbol-spaced multipath: main path + 4 echoes */
+    /* Multipath: main path + echoes within 4-symbol span */
+    if (num_echoes == 0) num_echoes = 4;
     ch->mp_len = 4 * k + 1;
     float *mp = calloc(ch->mp_len, sizeof(float));
-    mp[0]     =  1.000f;
-    mp[1*k]   =  0.030f;
-    mp[2*k]   = -0.025f;
-    mp[3*k]   =  0.020f;
-    mp[4*k]   = -0.015f;
+    mp[0] = 1.000f;
+    for (unsigned int i = 1; i <= num_echoes; i++) {
+        unsigned int pos = i * 4 * k / num_echoes;
+        float amp = 0.035f - 0.020f * (float)(i - 1) / (float)num_echoes;
+        mp[pos] = (i % 2 == 0) ? -amp : amp;
+    }
     ch->mp_filt = firfilt_crcf_create(mp, ch->mp_len);
     free(mp);
 
