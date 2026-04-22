@@ -45,6 +45,8 @@ void channel_sim_reset(channel_sim_t *ch)
 {
     firfilt_crcf_reset(ch->bw_filt);
     firfilt_crcf_reset(ch->mp_filt);
+    if (ch->nominal_power > 0.0f)
+        ch->agc_power = ch->nominal_power;
 }
 
 void channel_sim_apply(channel_sim_t *ch, const float complex *in,
@@ -53,6 +55,26 @@ void channel_sim_apply(channel_sim_t *ch, const float complex *in,
     float complex tmp[n];
     firfilt_crcf_execute_block(ch->bw_filt, (float complex *)in, n, tmp);
     firfilt_crcf_execute_block(ch->mp_filt, tmp, n, out);
+
+    for (unsigned int j = 0; j < n; j++) {
+        ch->agc_n++;
+        if (ch->agc_n <= ch->bw_filt_len)
+            continue;
+        float s2 = crealf(out[j])*crealf(out[j]) + cimagf(out[j])*cimagf(out[j]);
+        if (ch->agc_power == 0.0f)
+            ch->agc_power = s2;
+        else
+            ch->agc_power += 0.0001f * (s2 - ch->agc_power);
+    }
+
+    if (ch->nominal_power == 0.0f && ch->agc_n > ch->bw_filt_len + 50000)
+        ch->nominal_power = ch->agc_power;
+
+    if (ch->nominal_power > 1e-10f && ch->agc_power > 1.5f * ch->nominal_power) {
+        float scale = sqrtf(ch->nominal_power / ch->agc_power);
+        for (unsigned int j = 0; j < n; j++)
+            out[j] *= scale;
+    }
 }
 
 void channel_sim_add_noise(float complex *buf, unsigned int n, float nstd)
