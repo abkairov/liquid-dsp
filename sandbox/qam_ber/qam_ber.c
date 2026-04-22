@@ -107,8 +107,9 @@ int main(int argc, char *argv[])
     for (float SNRdB = SNRdB_min; SNRdB <= SNRdB_max + 0.001f; SNRdB += SNRdB_step) {
         run_training(&mp, &ch, N_train, SNRdB);
 
+        unsigned int M_full = 1u << mp.dbps;
         for (unsigned int i = 0; i < num_symbols; i++)
-            tx_data[i] = rand() % mp.M_data;
+            tx_data[i] = rand() % M_full;
 
         modem_pipeline_reset(&mp);
         channel_sim_reset(&ch);
