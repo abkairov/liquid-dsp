@@ -115,9 +115,8 @@ int main(int argc, char *argv[])
         run_training(&mp, &ch, N_train, SNRdB);
 
         if (has_seed) srand(seed_val);
-        unsigned int M_full = 1u << mp.dbps;
         for (unsigned int i = 0; i < num_symbols; i++)
-            tx_data[i] = rand() % M_full;
+            tx_data[i] = rand() % mp.M_data;
 
         modem_pipeline_reset(&mp);
         channel_sim_reset(&ch);

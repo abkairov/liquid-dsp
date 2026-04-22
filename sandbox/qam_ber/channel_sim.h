@@ -10,9 +10,6 @@ typedef struct {
     firfilt_crcf mp_filt;
     unsigned int mp_len;
     unsigned int k;
-    float        agc_power;
-    float        nominal_power;
-    unsigned int agc_n;
 } channel_sim_t;
 
 int  channel_sim_create(channel_sim_t *ch, float sym_rate, unsigned int k,
