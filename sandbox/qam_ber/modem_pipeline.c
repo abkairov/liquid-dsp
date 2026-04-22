@@ -57,6 +57,12 @@ void modem_pipeline_rx(modem_pipeline_t *mp, float complex *rx_buf,
     firdecim_crcf_execute(mp->decim, rx_buf, y_out);
 }
 
+void modem_pipeline_train_begin(modem_pipeline_t *mp, unsigned int N_total)
+{
+    (void)mp;
+    (void)N_total;
+}
+
 void modem_pipeline_train_step(modem_pipeline_t *mp,
                                float complex *rx_buf,
                                float complex ref)

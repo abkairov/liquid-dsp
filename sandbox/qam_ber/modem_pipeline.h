@@ -34,6 +34,9 @@ void modem_pipeline_decode(modem_pipeline_t *mp,
                            const float complex *rx_samp,
                            unsigned int num_symbols, unsigned int *dec_out);
 
+/* Begin training: tell pipeline how many steps to expect. */
+void modem_pipeline_train_begin(modem_pipeline_t *mp, unsigned int N_total);
+
 /* Training: feed one RX symbol + known reference to adapt RX conditioning.
    ref = known TX constellation point for this symbol.
    Call after pipeline settles (i.e. after total_delay symbols). */

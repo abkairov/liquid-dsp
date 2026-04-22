@@ -20,6 +20,7 @@ static void run_training(modem_pipeline_t *mp, channel_sim_t *ch,
 
     modem_pipeline_reset(mp);
     channel_sim_reset(ch);
+    modem_pipeline_train_begin(mp, N_train);
 
     float complex tx_buf[k], ch_buf[k];
     for (unsigned int i = 0; i < N_train + total_delay; i++) {
